@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buzzer Game</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: white;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            width: 80%;
+            max-width: 500px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .container:hover {
+            transform: scale(1.02);
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .btn {
+            background: #ff4d6d;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: block;
+            margin: 15px auto;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: #e63950;
+            transform: scale(1.05);
+        }
+
+        .buzzer {
+            background: #ffcc00;
+            color: black;
+            font-weight: bold;
+            font-size: 1.5rem;
+            padding: 20px;
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: 0.2s;
+            display: none;
+        }
+
+        .buzzer:hover {
+            background: #ffb700;
+            transform: scale(1.1);
+        }
+
+        .buzzer:active {
+            background: red;
+            transform: scale(1);
+            animation: shake 0.2s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        #userCount {
+            font-size: 1.2rem;
+            color: white;
+            margin: 10px;
+        }
+
+        #winner {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: yellow;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Buzzer Game</h1>
+
+    <div class="container">
+        <p id="userCount">Users Joined: 0</p>
+
+        <input type="text" id="username" placeholder="Enter your name">
+        <input type="text" id="gameCode" placeholder="Enter Game Code">
+        <button class="btn" onclick="joinGame()">Join Game</button>
+
+        <button class="btn" id="startGame" onclick="startGame()" style="display: none;">Start Game</button>
+
+        <button class="buzzer" onclick="pressBuzzer()" id="buzzerBtn" disabled>Buzz!</button>
+
+        <p id="winner"></p>
+    </div>
+
+    <script>
+        const UNIQUE_GAME_CODE = "1234"; // Predefined game code
+        let players = [];
+        let gameStarted = false;
+        let buzzerPressed = false;
+        let owner = null;
+
+        function joinGame() {
+            let name = document.getElementById("username").value.trim();
+            let enteredCode = document.getElementById("gameCode").value.trim();
+
+            if (name === "" || enteredCode === "") {
+                alert("Please enter both name and game code!");
+                return;
+            }
+            if (enteredCode !== UNIQUE_GAME_CODE) {
+                alert("Incorrect game code!");
+                return;
+            }
+            if (players.includes(name)) {
+                alert("This name is already taken!");
+                return;
+            }
+
+            players.push(name);
+            document.getElementById("userCount").innerText = `Users Joined: ${players.length}`;
+
+            if (players.length === 1) {
+                owner = name;
+                document.getElementById("startGame").style.display = "block";
+                alert(`${name} is the owner and can start the game.`);
+            } else {
+                alert(`${name} has joined the game!`);
+            }
+
+            document.getElementById("username").disabled = true;
+            document.getElementById("gameCode").disabled = true;
+        }
+
+        function startGame() {
+            if (players.length < 2) {
+                alert("At least 2 players are needed to start the game!");
+                return;
+            }
+            gameStarted = true;
+            document.getElementById("buzzerBtn").style.display = "block";
+            document.getElementById("buzzerBtn").disabled = false;
+            document.getElementById("startGame").disabled = true;
+            alert("Game Started! Press the buzzer fast!");
+        }
+
+        function pressBuzzer() {
+            if (!gameStarted) {
+                alert("Game has not started yet!");
+                return;
+            }
+            if (buzzerPressed) {
+                alert("Buzzer already pressed!");
+                return;
+            }
+
+            let name = document.getElementById("username").value;
+            buzzerPressed = true;
+            document.getElementById("buzzerBtn").innerText = `${name} Won!`;
+            document.getElementById("buzzerBtn").style.background = "green";
+            document.getElementById("buzzerBtn").disabled = true;
+            document.getElementById("winner").innerText = `${name} clicked first! 🏆`;
+            alert(`${name} clicked first!`);
+        }
+    </script>
+
+</body>
+</html>
